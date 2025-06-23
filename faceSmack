@@ -1,0 +1,136 @@
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
+import java.io.File;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+
+
+// 2/27/2025
+// Facesmack© version 1.3
+public class faceSmack {
+   public static void main(String[] args) {
+       File folder = new File("src/images");
+       File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+       ArrayList<String> imagePaths = new ArrayList<>();
+       if (files != null) {
+           for (File file : files) {
+               imagePaths.add(file.getAbsolutePath());
+           }
+       }
+       Gui gui = new Gui(600, 400, imagePaths);
+   }
+}
+
+
+class Gui {
+   JFrame frame;
+   ImageButton thesis;
+   ImageButton antithesis;
+   ArrayList<String> imageList;
+
+
+   public Gui(int width, int height, ArrayList<String> images) {
+       this.frame = new JFrame("Facesmack");
+       this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       imageList = images;
+
+
+       JPanel panel = new JPanel();
+       panel.setPreferredSize(new Dimension(width, height));
+       panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+       panel.setBackground(new Color(253, 248, 235));
+
+
+       JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+       labelPanel.setBackground(new Color(138, 191, 183));
+       JLabel sign = new JLabel("Facesmack©");
+       sign.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+       labelPanel.add(sign);
+
+
+       JPanel buttonPanel = new JPanel();
+       buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+       buttonPanel.setBackground(new Color(0,0,0,0));
+
+
+       thesis = new ImageButton(this);
+       antithesis = new ImageButton(this);
+
+
+       buttonPanel.add(thesis);
+       buttonPanel.add(antithesis);
+
+
+       panel.add(labelPanel);
+       panel.add(buttonPanel);
+
+
+       Container content = frame.getContentPane();
+       content.add(panel);
+       frame.pack();
+       frame.setLocationRelativeTo(null);
+       frame.setVisible(true);
+   }
+
+
+   public void redraw() {
+       frame.repaint();
+   }
+
+
+   public String removeImage(int index) {
+       return imageList.remove(index);
+   }
+
+
+   public int getListSize() {
+       return imageList.size();
+   }
+}
+
+
+class ImageButton extends JButton implements ActionListener {
+   private int index;
+   private Gui gui;
+   private String imagePath;
+
+
+   public ImageButton(Gui gui) {
+       this.gui = gui;
+       this.addActionListener(this);
+       updateImage();
+   }
+
+
+   private void updateImage() {
+       if (gui.getListSize() > 0) {
+           index = (int) (Math.random() * gui.getListSize());
+           imagePath = gui.removeImage(index);
+           setImage(imagePath);
+       } else {
+           setText("Winner!");
+       }
+   }
+
+
+   private void setImage(String path) {
+       try {
+           BufferedImage img = ImageIO.read(new File(path));
+           Image scaledImg = img.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+           setIcon(new ImageIcon(scaledImg));
+           setText(""); // Remove text label
+       } catch (Exception e) {
+           setText("Error Loading Image");
+       }
+   }
+
+
+   public void actionPerformed(ActionEvent event) {
+       updateImage();
+       gui.redraw();
+   }
+}
+
+
